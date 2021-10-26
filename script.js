@@ -1,6 +1,7 @@
 // Dynamic Adapt v.1
-// HTML data-da="where(uniq class name),position(digi),when(breakpoint)"
-// e.x. data-da="item,2,992"
+// HTML data-da="where(uniq class name),position(digi),when(breakpoint),back to first position(back_breakpoint)"
+// If the item does not need to be returned to the original entry, write 0 to last parameter
+// e.x. data-da="item,2,992,0"
 // Andrikanych Yevhen 2020
 // https://www.youtube.com/c/freelancerlifestyle
 
@@ -16,7 +17,7 @@
 			const da_element = da_elements[index];
 			const da_move = da_element.getAttribute('data-da');
 			const da_array = da_move.split(',');
-			if (da_array.length == 3) {
+			if (da_array.length == 4) {
 				da_element.setAttribute('data-da-index', number);
 				//Заполняем массив первоначальных позиций
 				original_positions[number] = {
@@ -28,20 +29,24 @@
 					"element": da_element,
 					"destination": document.querySelector('.' + da_array[0].trim()),
 					"place": da_array[1].trim(),
-					"breakpoint": da_array[2].trim()
+					"breakpoint": da_array[2].trim(),
+					"back_breakpoint": da_array[3].trim()
 				}
 				number++;
 			}
 		}
+
 		dynamic_adapt_sort(da_elements_array);
 
 		//Создаем события в точке брейпоинта
 		for (let index = 0; index < da_elements_array.length; index++) {
 			const el = da_elements_array[index];
-			const da_breakpoint = el.breakpoint;
-			const da_type = "max"; //Для MobileFirst поменять на min
-
-			da_match_media.push(window.matchMedia("(" + da_type + "-width: " + da_breakpoint + "px)"));
+			const da_high_breakpoint = el.breakpoint;
+			const da_low_breakpoint = el.back_breakpoint;
+			const da_type_high_breakpoint = "max"; // Для MobileFirst поменять на min
+			const da_type_low_breakpoint = "min"; // Эти две переменные не могут быть одинаковыми. Или min или max
+			
+			da_match_media.push(window.matchMedia("(" + da_type_high_breakpoint + "-width: " + da_high_breakpoint + "px) and (" + da_type_low_breakpoint + "-width: " + da_low_breakpoint + "px)"));
 			da_match_media[index].addListener(dynamic_adapt);
 
 		}
